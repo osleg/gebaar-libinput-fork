@@ -60,6 +60,10 @@ void gebaar::io::Input::reset_pinch_event() {
   gesture_pinch_event = {};
   gesture_pinch_event.scale = DEFAULT_SCALE;
   gesture_pinch_event.executed = false;
+  gesture_pinch_event.angle = 0;
+  gesture_pinch_event.step = 1;
+  gesture_pinch_event.rotation_step = 1;
+  rotating = false;
 }
 
 /**
@@ -80,6 +84,39 @@ void gebaar::io::Input::handle_one_shot_pinch(double new_scale) {
       gesture_pinch_event.executed = true;
     }
   }
+}
+
+/**
+ * Check for rotation. If rotation detected execute command and return true
+ * return false otherwise
+ * @param new_angle new absolute angle
+ */
+void gebaar::io::Input::handle_rotation(double new_angle) {
+  if (new_angle > gesture_pinch_event.angle) { // Rotate right
+    std::system(config->pinch_commands[config->ROTATE_RIGHT].c_str());
+    inc_step(gesture_pinch_event.rotation_step);
+  } else { // Rotate left
+    std::system(config->pinch_commands[config->ROTATE_LEFT].c_str());
+    dec_step(gesture_pinch_event.rotation_step);
+  }
+}
+
+/**
+ * Check for rotation trigger
+ * @param angle current angle
+ * @param threshold threshold from config to trigger action
+ */
+bool gebaar::io::Input::do_rotation_trigger(double angle, double threshold) {
+  // Threshold for rotation... that's tricky.
+  // Basically there could be 360 degrees angle but that'd be too long
+  // Hence let's do the trigger based on 90 degrees. That might be problematic
+  // In a long run but let's see how it works, maybe reduce to 44?
+  double nor = abs(angle) / 45.0;
+  double trigger = abs(threshold * gesture_pinch_event.rotation_step);
+  if (nor > trigger) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -118,18 +155,33 @@ void gebaar::io::Input::handle_pinch_event(libinput_event_gesture *gev,
     gesture_pinch_event.fingers = libinput_event_gesture_get_finger_count(gev);
   } else {
     double new_scale = libinput_event_gesture_get_scale(gev);
-    if (config->settings.pinch_one_shot && !gesture_pinch_event.executed)
-      handle_one_shot_pinch(new_scale);
-    if (!config->settings.pinch_one_shot)
-      handle_continouos_pinch(new_scale);
+    double delta = libinput_event_gesture_get_angle_delta(gev);
+    double new_angle = gesture_pinch_event.angle + delta;
+    /*
+     * Since rotation and pinch gestures don't play very well together
+     * we should return if rotation is handled to prevent pinch jittering
+     */
+    // printf("Delta: %.2f, pinch_threshold: %.2f\n", delta,
+    // config->settings.pinch_threshold);
+    if (do_rotation_trigger(new_angle, config->settings.pinch_threshold)) {
+      handle_rotation(new_angle);
+      rotating = true;
+    } else if (!rotating) {
+      if (config->settings.pinch_one_shot && !gesture_pinch_event.executed)
+        handle_one_shot_pinch(new_scale);
+      if (!config->settings.pinch_one_shot)
+        handle_continouos_pinch(new_scale);
+    }
+
     gesture_pinch_event.scale = new_scale;
+    gesture_pinch_event.angle = new_angle;
   }
 }
 
 /**
- * This event has no coordinates, so it's an event that gives us a begin or end
- * signal. If it begins, we get the amount of fingers used. If it ends, we check
- * what kind of gesture we received.
+ * This event has no coordinates, so it's an event that gives us a begin or
+ * end signal. If it begins, we get the amount of fingers used. If it ends, we
+ * check what kind of gesture we received.
  *
  * @param gev Gesture Event
  * @param begin Boolean to denote begin or end of gesture
