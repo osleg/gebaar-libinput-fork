@@ -29,6 +29,7 @@
 #define SWIPE_Y_THRESHOLD 500
 
 namespace gebaar::io {
+
 struct gesture_swipe_event {
   int fingers;
   double x;
@@ -44,7 +45,9 @@ struct gesture_pinch_event {
   double angle;
 
   bool executed;
+  bool rotating;
   int step;
+  int rotation_step;
 };
 
 class Input {
@@ -66,6 +69,8 @@ private:
 
   struct gesture_swipe_event gesture_swipe_event;
   struct gesture_pinch_event gesture_pinch_event;
+
+  bool rotating;
 
   bool initialize_context();
 
@@ -95,6 +100,8 @@ private:
    */
   inline void inc_step(int &cur) { ++cur == 0 ? ++cur : cur; }
 
+  bool do_rotation_trigger(double angle, double threshold);
+
   void handle_event();
 
   /* Swipe event */
@@ -114,7 +121,10 @@ private:
 
   void handle_continouos_pinch(double new_scale);
 
+  void handle_rotation(double new_angle);
+
   void handle_pinch_event(libinput_event_gesture *gev, bool begin);
+
 };
 } // namespace gebaar::io
 

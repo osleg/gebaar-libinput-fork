@@ -91,6 +91,10 @@ void gebaar::config::Config::load_config() {
           *config->get_qualified_as<std::string>("pinch.commands.two.out");
       pinch_commands[PINCH_OUT] =
           *config->get_qualified_as<std::string>("pinch.commands.two.in");
+      pinch_commands[ROTATE_RIGHT] =
+        *config->get_qualified_as<std::string>("pinch.commands.rotate.right");
+      pinch_commands[ROTATE_LEFT] =
+        *config->get_qualified_as<std::string>("pinch.commands.rotate.left");
 
       settings.pinch_threshold =
           config->get_qualified_as<double>("pinch.settings.threshold")

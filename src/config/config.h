@@ -42,7 +42,7 @@ public:
     bool swipe_trigger_on_release;
   } settings;
 
-  enum pinch { PINCH_IN, PINCH_OUT };
+  enum pinch { PINCH_IN, PINCH_OUT, ROTATE_RIGHT, ROTATE_LEFT };
   std::string swipe_three_commands[10];
   std::string swipe_four_commands[10];
   std::string pinch_commands[10];
