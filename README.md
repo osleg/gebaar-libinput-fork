@@ -40,17 +40,8 @@ Click to join: [![Discord](https://img.shields.io/discord/548978799136473106.svg
 14. Reboot and see the magic
 
 ```toml
-[swipe.commands.three]
-left_up = ""
-right_up = ""
-up = ""
-left_down = ""
-right_down = ""
-down = ""
-left = ""
-right = ""
-
-[swipe.commands.four]
+[swipe.commands]
+fingers = 3
 left_up = ""
 right_up = ""
 up = ""
@@ -89,7 +80,8 @@ trigger_on_release = false
 
 _~/.config/gebaar/gebaard.toml_
 ```toml
-[swipe.commands.three]
+[swipe.commands]
+fingers = 3
 left_up = ""
 right_up = ""
 up = "bspc node -f north"
@@ -100,7 +92,8 @@ left = "bspc node -f west"
 right = "bspc node -f east"
 
 
-[swipe.commands.four]
+[swipe.commands]
+fingers = 4
 left_up = ""
 right_up = ""
 up = "rofi -show combi"

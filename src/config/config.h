@@ -16,49 +16,57 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GEBAAR_CONFIG_H
-#define GEBAAR_CONFIG_H
+#ifndef SRC_GEBAAR_CONFIG_H_
+#define SRC_GEBAAR_CONFIG_H_
 
 #include <cpptoml.h>
-#include <filesystem>
 #include <pwd.h>
+#include <spdlog/spdlog.h>
+#include <filesystem>
 #include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
+#include <iterator>
+
+#define MAX_DIRECTION 9
+#define MIN_DIRECTION 1
+
+const std::map<int, std::string> SWIPE_COMMANDS = {
+    {1, "left_up"}, {2, "up"},        {3, "right_up"}, {4, "left"},
+    {6, "right"},   {7, "left_down"}, {8, "down"},     {9, "right_down"}};
 
 namespace gebaar::config {
-    class Config {
-    public:
-        Config();
+class Config {
+   public:
+    Config();
 
-        bool loaded = false;
+    bool loaded = false;
 
-        void load_config();
+    void load_config();
 
+    struct settings {
+        bool pinch_one_shot;
+        double pinch_threshold;
 
-        struct settings {
-          bool pinch_one_shot;
-          double pinch_threshold;
+        bool swipe_one_shot;
+        double swipe_threshold;
+        bool swipe_trigger_on_release;
+    } settings;
 
-          bool swipe_one_shot;
-          double swipe_threshold;
-          bool swipe_trigger_on_release;
-        } settings;
+    enum pinch { PINCH_IN, PINCH_OUT };
+    std::string pinch_commands[10];
+    std::string get_command(int fingers, int swipe_type);
 
-        enum pinch {PINCH_IN, PINCH_OUT};
-        std::string swipe_three_commands[10];
-        std::string swipe_four_commands[10];
-        std::string pinch_commands[10];
+   private:
+    bool config_file_exists();
 
-    private:
+    bool find_config_file();
 
-        bool config_file_exists();
-
-        bool find_config_file();
-
-
-        std::string config_file_path;
-        std::shared_ptr<cpptoml::table> config;
-
-
-    };
-}
-#endif //GEBAAR_CONFIG_H
+    std::string config_file_path;
+    std::shared_ptr<cpptoml::table> config;
+    std::map<int, std::map<std::string, std::string>> commands;
+};
+}  // namespace gebaar::config
+#endif  // SRC_CONFIG_CONFIG_H_

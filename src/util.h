@@ -16,13 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef SRC_UTIL_H_
+#define SRC_UTIL_H_
 
 #include <string>
 
 namespace gebaar::util {
-    std::string stringFromCharArray(char* charArr);
+std::string stringFromCharArray(char* charArr);
 }
 
-#endif // UTIL_H
+#endif  // SRC_UTIL_H_

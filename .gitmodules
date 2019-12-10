@@ -4,3 +4,6 @@
 [submodule "libs/cpptoml"]
 	path = libs/cpptoml
 	url = https://github.com/skystrife/cpptoml
+[submodule "libs/spdlog"]
+	path = libs/spdlog
+	url = https://github.com/gabime/spdlog
